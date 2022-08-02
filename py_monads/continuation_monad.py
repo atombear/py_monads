@@ -1,6 +1,7 @@
 def unit(val):
     return lambda f: f(val)
 
+
 def init(val):
     return unit(val)
 
