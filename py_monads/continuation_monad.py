@@ -1,9 +1,12 @@
-def init(val):
+def unit(val):
     return lambda f: f(val)
+
+def init(val):
+    return unit(val)
 
 
 def add(val):
-    return lambda v: lambda f: f(v + val)
+    return lambda v: unit(v + val)
 
 
 end = lambda x: x
