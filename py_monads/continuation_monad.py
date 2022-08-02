@@ -5,8 +5,8 @@ def unit(val):
     return lambda f: f(val)
 
 
-def bind(monad, kiesli):
-    return monad(kiesli)
+def bind(monad, kliesli):
+    return monad(kliesli)
 
 
 def associate(k0, k1):
