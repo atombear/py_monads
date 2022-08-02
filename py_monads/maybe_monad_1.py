@@ -1,6 +1,13 @@
-from typing import Any, Callable
+from typing import Callable, Generic, TypeVar
 
-class Maybe:
+a = TypeVar('a')
+
+
+class Monad(Generic[a]):
+    pass
+
+
+class Maybe(Monad[a]):
     pass
 
 
@@ -11,9 +18,9 @@ class Nothing(Maybe):
         return bind(self, other)
 
 
-class Just(Maybe):
-    def __init__(self, val: Any):
-        self.val: Any = val
+class Just(Maybe[a]):
+    def __init__(self, val: a):
+        self.val: a = val
 
     def __eq__(self, other):
         if type(other) is not Just:
@@ -24,44 +31,55 @@ class Just(Maybe):
         return bind(self, other)
 
 
-def unit(val: Any) -> Just:
+class Kliesli:
+    def __init__(self, f: Callable[[a], Monad[a]]):
+        self.f = f
+
+    def __mul__(self, other):
+        """Associativity of monadic composition, eg m >>= f >>= g"""
+        return Kliesli(lambda x: bind(self.f(x), other))
+
+
+def unit(val: a) -> Just[a]:
     return Just(val)
 
 
-def bind(ma: Maybe, f: Callable[[Any], Maybe]) -> Maybe:
+def bind(ma: Maybe[a], k: Kliesli) -> Maybe[a]:
     if type(ma) is Nothing:
         return Nothing()
     else:
         try:
             val = ma.val
-            return f(val)
+            return k.f(val)
         except Exception:
             return Nothing()
 
 
-def bind_chain(ma: Maybe, *fs: Callable[[Any], Maybe]) -> Maybe:
+def bind_chain(ma: Maybe[a], *ks: Kliesli) -> Maybe[a]:
     ret = ma
-    for f in fs:
-        ret = bind(ret, f)
+    for k in ks:
+        ret = bind(ret, k)
     return ret
 
 
 if __name__ == '__main__':
-    assert bind(Just(3), lambda x: Just(x+5)) == Just(8)
+    assert bind(Just(3), Kliesli(lambda x: Just(x+5))) == Just(8)
     assert bind(
                 bind(Just(3),
-                     lambda x: Just(x + 5)),
-                lambda x: Just(x * 3)) == Just(24)
+                     Kliesli(lambda x: Just(x + 5))),
+                Kliesli(lambda x: Just(x * 3))) == Just(24)
     
     assert bind_chain(Just(7),
-                      lambda x: Just(x + 10),
-                      lambda x: Just(x * 3),
-                      lambda x: Just(x - 11)) == Just(40)
+                      Kliesli(lambda x: Just(x + 10)),
+                      Kliesli(lambda x: Just(x * 3)),
+                      Kliesli(lambda x: Just(x - 11))) == Just(40)
 
     assert bind_chain(Just(1),
-                      lambda x: Just(x / 0),
-                      lambda x: Just(x + 3)) == Nothing()
+                      Kliesli(lambda x: Just(x / 0)),
+                      Kliesli(lambda x: Just(x + 3))) == Nothing()
 
     assert (Just(12)
-            * (lambda x: Just(x + 10)
-            * (lambda x: Just(x * 3)))) == Just(66)
+            * Kliesli(lambda x: Just(x + 10)
+            * Kliesli(lambda x: Just(x * 3)))) == Just(66)
+
+    assert (Just(30) * (Kliesli(lambda x: Just(x / 10)) * Kliesli(lambda x: Just(x + 3)))) == Just(6.0)
