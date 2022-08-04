@@ -1,1 +1,11 @@
 *.py~
+*.hi
+*.hs~
+*.o
+
+
+# executables
+reader
+
+.idea
+__pycache__
