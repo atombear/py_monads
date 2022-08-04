@@ -6,7 +6,7 @@ KliesliT = TypeVar('KliesliT')
 
 
 class Monad(Generic[a]):
-    bind: None
+    bind = None
 
     def __mul__(self, other):
         return self.bind(self, other)

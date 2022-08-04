@@ -14,7 +14,7 @@ def bind(monad, kliesli):
     return monad(kliesli)
 
 
-def associate(k0, k1):
+def kleisli_composition(k0, k1):
     return lambda x: k0(x)(k1)
 
 
@@ -45,12 +45,12 @@ if __name__ == '__main__':
     assert run_monad(m) == 53
 
     m = unit(12)
-    k = associate(lambda x: unit(x+1), lambda x: unit(x+2))
+    k = kleisli_composition(lambda x: unit(x + 1), lambda x: unit(x + 2))
     m = bind(m, k)
     assert run_monad(m) == 15
 
     m = unit(23)
-    k = reduce(associate,
+    k = reduce(kleisli_composition,
                (lambda x: unit(x+3),
                 lambda x: unit(x*2),
                 lambda x: unit(x-2),

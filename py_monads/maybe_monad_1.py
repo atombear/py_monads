@@ -1,24 +1,25 @@
-from typing import Callable, Generic, TypeVar
-
 from py_monads.monad import Monad, a, b, kliesli_factory, KliesliT
 
 
 class Maybe(Monad[a]):
-    val: a = None
+    val: a
+
+    def __init__(self):
+        self.bind = bind
 
 
 class Nothing(Maybe[a]):
-    def __eq__(self, other):
-        self.bind = bind
-        return type(other) is Nothing
+    def __init__(self):
+        super().__init__()
 
-    def __mul__(self, other):
-        return bind(self, other)
+    def __eq__(self, other):
+        return type(other) is Nothing
 
 
 class Just(Maybe[a]):
+
     def __init__(self, val: a):
-        self.bind = bind
+        super().__init__()
         self.val: a = val
 
     def __eq__(self, other):
