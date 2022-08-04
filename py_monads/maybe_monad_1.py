@@ -1,25 +1,24 @@
 from typing import Callable, Generic, TypeVar
 
-a = TypeVar('a')
-
-
-class Monad(Generic[a]):
-    pass
+from py_monads.monad import Monad, a, b, kliesli_factory, KliesliT
 
 
 class Maybe(Monad[a]):
-    pass
+    val: a = None
 
 
-class Nothing(Maybe):
+class Nothing(Maybe[a]):
     def __eq__(self, other):
+        self.bind = bind
         return type(other) is Nothing
+
     def __mul__(self, other):
         return bind(self, other)
 
 
 class Just(Maybe[a]):
     def __init__(self, val: a):
+        self.bind = bind
         self.val: a = val
 
     def __eq__(self, other):
@@ -27,35 +26,26 @@ class Just(Maybe[a]):
             return False
         return self.val == other.val
 
-    def __mul__(self, other):
-        return bind(self, other)
-
-
-class Kliesli:
-    def __init__(self, f: Callable[[a], Monad[a]]):
-        self.f = f
-
-    def __mul__(self, other):
-        """Associativity of monadic composition, eg m >>= f >>= g"""
-        return Kliesli(lambda x: bind(self.f(x), other))
-
 
 def unit(val: a) -> Just[a]:
     return Just(val)
 
 
-def bind(ma: Maybe[a], k: Kliesli) -> Maybe[a]:
+def bind(ma: Maybe[a], k: KliesliT) -> Maybe[b]:
     if type(ma) is Nothing:
         return Nothing()
     else:
         try:
             val = ma.val
-            return k.f(val)
+            return k(val)
         except Exception:
             return Nothing()
 
 
-def bind_chain(ma: Maybe[a], *ks: Kliesli) -> Maybe[a]:
+Kliesli = kliesli_factory(bind)
+
+
+def bind_chain(ma: Maybe[a], *ks: KliesliT) -> Maybe[b]:
     ret = ma
     for k in ks:
         ret = bind(ret, k)
@@ -63,6 +53,7 @@ def bind_chain(ma: Maybe[a], *ks: Kliesli) -> Maybe[a]:
 
 
 if __name__ == '__main__':
+
     assert bind(Just(3), Kliesli(lambda x: Just(x+5))) == Just(8)
     assert bind(
                 bind(Just(3),

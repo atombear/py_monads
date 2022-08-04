@@ -1,3 +1,8 @@
+"""
+this is an incredibly satisfying monad. no classes are needed as the basic
+wrapping amounts to applying passed functions.
+"""
+
 from functools import reduce
 
 
