@@ -41,6 +41,9 @@ return a >>= (\x -> fma x) - m (\x -> a) >>= (\x -> fma x)
                            - fma a
 
 where fma is so-called because it is a function that takes a and produces a monad m a.
+
+There is also a convenience monad Reader(\cfg -> cfg) used when there is syntax to
+support writing nested lambdas in an 'imperative' style
 """
 from dataclasses import dataclass
 from typing import Callable, Tuple, TypeVar
