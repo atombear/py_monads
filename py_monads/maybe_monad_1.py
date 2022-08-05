@@ -1,4 +1,4 @@
-from py_monads.monad import Monad, a, b, kliesli_factory, KliesliT
+from py_monads.monad import Monad, a, b, kleisli_factory, KleisliT
 
 
 class Maybe(Monad[a]):
@@ -32,7 +32,7 @@ def unit(val: a) -> Just[a]:
     return Just(val)
 
 
-def bind(ma: Maybe[a], k: KliesliT) -> Maybe[b]:
+def bind(ma: Maybe[a], k: KleisliT) -> Maybe[b]:
     if type(ma) is Nothing:
         return Nothing()
     else:
@@ -43,10 +43,10 @@ def bind(ma: Maybe[a], k: KliesliT) -> Maybe[b]:
             return Nothing()
 
 
-Kliesli = kliesli_factory(bind)
+Kleisli = kleisli_factory(bind)
 
 
-def bind_chain(ma: Maybe[a], *ks: KliesliT) -> Maybe[b]:
+def bind_chain(ma: Maybe[a], *ks: KleisliT) -> Maybe[b]:
     ret = ma
     for k in ks:
         ret = bind(ret, k)
@@ -55,24 +55,24 @@ def bind_chain(ma: Maybe[a], *ks: KliesliT) -> Maybe[b]:
 
 if __name__ == '__main__':
 
-    assert bind(Just(3), Kliesli(lambda x: Just(x+5))) == Just(8)
+    assert bind(Just(3), Kleisli(lambda x: Just(x + 5))) == Just(8)
     assert bind(
                 bind(Just(3),
-                     Kliesli(lambda x: Just(x + 5))),
-                Kliesli(lambda x: Just(x * 3))) == Just(24)
+                     Kleisli(lambda x: Just(x + 5))),
+                Kleisli(lambda x: Just(x * 3))) == Just(24)
     
     assert bind_chain(Just(7),
-                      Kliesli(lambda x: Just(x + 10)),
-                      Kliesli(lambda x: Just(x * 3)),
-                      Kliesli(lambda x: Just(x - 11))) == Just(40)
+                      Kleisli(lambda x: Just(x + 10)),
+                      Kleisli(lambda x: Just(x * 3)),
+                      Kleisli(lambda x: Just(x - 11))) == Just(40)
 
     assert bind_chain(Just(1),
-                      Kliesli(lambda x: Just(x / 0)),
-                      Kliesli(lambda x: Just(x + 3))) == Nothing()
+                      Kleisli(lambda x: Just(x / 0)),
+                      Kleisli(lambda x: Just(x + 3))) == Nothing()
 
     assert (Just(12)
-            * Kliesli(lambda x: Just(x + 10)
-            * Kliesli(lambda x: Just(x * 3)))) == Just(66)
+            * Kleisli(lambda x: Just(x + 10)
+                                * Kleisli(lambda x: Just(x * 3)))) == Just(66)
 
     assert (Just(30) *
-            (Kliesli(lambda x: Just(x / 10)) * Kliesli(lambda x: Just(x + 3)))) == Just(6.0)
+            (Kleisli(lambda x: Just(x / 10)) * Kleisli(lambda x: Just(x + 3)))) == Just(6.0)

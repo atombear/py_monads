@@ -10,8 +10,8 @@ def unit(val):
     return lambda f: f(val)
 
 
-def bind(monad, kliesli):
-    return monad(kliesli)
+def bind(monad, kleisli):
+    return monad(kleisli)
 
 
 def kleisli_composition(k0, k1):

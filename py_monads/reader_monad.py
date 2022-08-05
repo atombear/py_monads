@@ -45,7 +45,7 @@ where fma is so-called because it is a function that takes a and produces a mona
 from dataclasses import dataclass
 from typing import Callable, Tuple, TypeVar
 
-from py_monads.monad import Monad, a, b, KliesliT, kliesli_factory
+from py_monads.monad import Monad, a, b, KleisliT, kleisli_factory
 
 
 class Cfg:
@@ -66,11 +66,11 @@ def unit(val: a) -> Reader[a]:
     return Reader(lambda x: val)
 
 
-def bind(r: Reader[a], k: KliesliT) -> Reader[b]:
+def bind(r: Reader[a], k: KleisliT) -> Reader[b]:
     return Reader(lambda cfg: k(r.runReader(cfg)).runReader(cfg))
 
 
-Kliesli = kliesli_factory(bind)
+Kleisli = kleisli_factory(bind)
 
 
 def example0():
@@ -79,9 +79,9 @@ def example0():
         first_letter: str
         second_letter: str
 
-    add_first_letter = Kliesli(lambda x: Reader(lambda cfg: x + cfg.first_letter))
+    add_first_letter = Kleisli(lambda x: Reader(lambda cfg: x + cfg.first_letter))
 
-    add_second_letter = Kliesli(lambda x: Reader(lambda cfg: x + cfg.second_letter))
+    add_second_letter = Kleisli(lambda x: Reader(lambda cfg: x + cfg.second_letter))
 
     m = unit('') * add_first_letter * add_second_letter * add_first_letter
 
