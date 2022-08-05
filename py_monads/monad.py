@@ -2,7 +2,7 @@ from typing import Generic, TypeVar, Callable
 
 a, b = map(TypeVar, 'ab')
 
-KliesliT = TypeVar('KliesliT')
+KleisliT = TypeVar('KleisliT')
 
 
 class Monad(Generic[a]):
@@ -12,16 +12,16 @@ class Monad(Generic[a]):
         return self.bind(self, other)
 
 
-def kliesli_factory(bind: Callable[[Monad[a], KliesliT], Monad[b]]):
-    class Kliesli:
+def kleisli_factory(bind: Callable[[Monad[a], KleisliT], Monad[b]]):
+    class Kleisli:
         def __init__(self, f: Callable[[a], Monad[b]]):
             self.f = f
 
         def __call__(self, val: a) -> Monad[b]:
             return self.f(val)
 
-        def __mul__(self, other: KliesliT) -> KliesliT:
+        def __mul__(self, other: KleisliT) -> KleisliT:
             """Associativity of monadic composition, eg m >>= (f >>= g)"""
-            return Kliesli(lambda x: bind(self.f(x), other))
+            return Kleisli(lambda x: bind(self.f(x), other))
 
-    return Kliesli
+    return Kleisli
