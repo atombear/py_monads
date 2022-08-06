@@ -106,9 +106,9 @@ def example_yao():
         return Reader(runReader)
 
     def welcomeMessage(motd: str, uname: str) -> Reader[mT]:
-        return (toUpperStr(motd) *
-                (lambda motd_upper: toUpperStr(uname) *
-                (lambda uname_upper: unit(f'Welcome, {uname_upper}! MOTD: {motd_upper}'))))
+        return (toUpperStr(motd) * (lambda motd_upper:
+                toUpperStr(uname) * (lambda uname_upper:
+                unit(f'Welcome, {uname_upper}! MOTD: {motd_upper}'))))
     sl = SkipLetters(('e', 'l'))
     r = welcomeMessage("another terrible day", "ahmed biryani")
     assert r.runReader(sl) == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY'
