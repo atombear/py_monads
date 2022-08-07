@@ -6,10 +6,26 @@ this is a simpler task, resulting in a simpler implementation, because the
 change is only to the output in a very predictable and minor fashion.
 
 the implementation will largely mirror Reader.
+
+there are some other useful functions -
+
+listen injects the log into the output for downstream perusal.
+listen :: Writer Log a -> Writer Log (a, Log)
+
+tell is almost like unit for a log
+tell :: Log -> Writer Log ()
+
+Log should belong to the class of monoids, for which two important
+functions are defined. generally, a monoid comprises a set of elements
+closed under a binary operation, where one element is neutral wrt the
+binary operation.
+
+mappend :: Monoid a => a -> a -> a
+mempty  :: Monoid a => a
 """
 from typing import TypeVar, Tuple
 
-from py_monads.monad import Monad, a, b, KleisliT, kleisli_factory
+from py_monads.monad import Monad, a, b, KleisliT, kleisli_factory, lapp
 
 
 class Log:
@@ -37,8 +53,8 @@ def unit(val: a) -> Writer[a]:
     return Writer((EmptyLog(), val))
 
 
-def bind(w: Writer[a], k: KleisliT) -> Writer[b]:
-    loga, vala = w.runWriter
+def bind(wa: Writer[a], k: KleisliT) -> Writer[b]:
+    loga, vala = wa.runWriter
     logb, valb = k(vala).runWriter
     return Writer((loga + logb, valb))
 
@@ -59,12 +75,13 @@ def example_yao():
         return log('augmenting...\n') * (lambda _:
                addTwo(x) * (lambda xp:
                addTwo(y) * (lambda yp:
+               lapp(5 * xp)(lambda xpp:
                log('stringify...\n') * (lambda _:
-               unit(str(xp + yp))))))
+               unit(str(xpp + yp)))))))
 
     final_log, final_value = augmentAndStringify(10, 11).runWriter
     assert final_log == 'augmenting...\nadding 2\nadding 2\nstringify...\n'
-    assert final_value == '25'
+    assert final_value == '73'
 
 
 if __name__ == '__main__':

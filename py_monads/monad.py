@@ -32,3 +32,9 @@ def kleisli_factory(bind: Callable[[Monad_a_T, KleisliT], Monad_b_T]):
             return Kleisli(lambda x: bind(self.f(x), other))
 
     return Kleisli
+
+
+def lapp(val):
+    def catch(f):
+        return f(val)
+    return catch
