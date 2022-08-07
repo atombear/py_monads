@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Generic, TypeVar, Callable
 
 a, b = map(TypeVar, 'ab')
@@ -30,6 +31,9 @@ def kleisli_factory(bind: Callable[[Monad_a_T, KleisliT], Monad_b_T]):
         def __mul__(self, other: KleisliT) -> KleisliT:
             """Associativity of monadic composition, eg m >>= (f >>= g)"""
             return Kleisli(lambda x: bind(self.f(x), other))
+
+        def __pow__(self, n: int) -> KleisliT:
+            return reduce(lambda x, y: x * y, (self for _ in range(n)), self)
 
     return Kleisli
 
