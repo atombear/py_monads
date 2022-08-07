@@ -82,9 +82,13 @@ def example0():
         first_letter: str
         second_letter: str
 
-    add_first_letter = Kleisli(lambda x: Reader(lambda cfg: x + cfg.first_letter))
+    @Kleisli
+    def add_first_letter(x):
+        return Reader(lambda cfg: x + cfg.first_letter)
 
-    add_second_letter = Kleisli(lambda x: Reader(lambda cfg: x + cfg.second_letter))
+    @Kleisli
+    def add_second_letter(x):
+        return Reader(lambda cfg: x + cfg.second_letter)
 
     m = unit('') * add_first_letter * add_second_letter * add_first_letter
 
