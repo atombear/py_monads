@@ -80,7 +80,8 @@ welcomeMessage :: String -> String -> Reader ABConfig String
 welcomeMessage motd username = do
     upperMOTD <- toUpperStr motd
     upperUsername <- toUpperStr username
-    Reader (\cfg -> "Welcome, " ++ upperUsername ++ "! Message of the day: " ++ upperMOTD)
+    let upperUsername_plus = upperUsername ++ ", my friend"
+    Reader (\cfg -> "Welcome, " ++ upperUsername_plus ++ "! Message of the day: " ++ upperMOTD)
 
 
 data TwoLetter = TwoLetter
