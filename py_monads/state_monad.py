@@ -62,13 +62,12 @@ def example0():
     class ListState(Generic[a], St, list):
         pass
 
+    @Kleisli
     def advance_list(v: a) -> State[a]:
         return State(lambda s: (s + [v], v+1))
 
-    k_advance = Kleisli(advance_list)
-
     def make_list(max_val: int) -> ListState[int]:
-        m = unit(0) * (k_advance ** max_val)
+        m = unit(0) * (advance_list ** max_val)
         return m.runState(ListState())[0]
 
     assert make_list(5) == list(range(6))
