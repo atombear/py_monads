@@ -60,7 +60,11 @@ Kleisli = kleisli_factory(bind)
 
 def example0():
     class ListState(Generic[a], St, list):
-        pass
+        def __add__(self, other):
+            return ListState(super().__add__(other))
+
+        def __radd__(self, other):
+            return ListState(other) + self
 
     @Kleisli
     def advance_list(v: a) -> State[a]:

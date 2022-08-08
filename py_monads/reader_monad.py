@@ -46,7 +46,7 @@ There is also a convenience monad Reader(\cfg -> cfg) used when there is syntax 
 support writing nested lambdas in an 'imperative' style
 """
 from dataclasses import dataclass
-from typing import Callable, Tuple, TypeVar
+from typing import Callable, Tuple, TypeVar, Dict
 
 from py_monads.monad import Monad, a, b, KleisliT, kleisli_factory
 
@@ -98,24 +98,39 @@ def example0():
 
 def example_yao():
     @dataclass
-    class SkipLetters(Cfg):
-        skip_letters: Tuple
+    class ModifyMessage(Cfg):
+        skip_letters: Tuple[str, ...]
+        censor_words: Dict[str, str]
 
-    mT = Callable[[SkipLetters], str]
+    mT = Callable[[ModifyMessage], str]
 
     def toUpperStr(s: str) -> Reader[mT]:
-        def runReader(cfg: SkipLetters) -> str:
+        def runReader(cfg: ModifyMessage) -> str:
             all_filter = lambda char: all(char.upper() != c.upper() for c in cfg.skip_letters)
             return ''.join(filter(all_filter, s.upper()))
+        return Reader(runReader)
+
+    def censorWords(s: str):
+        def runReader(cfg: ModifyMessage) -> str:
+            return ' '.join(cfg.censor_words.get(i.lower().strip('!.,'), i) for i in s.split(' '))
         return Reader(runReader)
 
     def welcomeMessage(motd: str, uname: str) -> Reader[mT]:
         return (toUpperStr(motd) * (lambda motd_upper:
                 toUpperStr(uname) * (lambda uname_upper:
                 unit(f'Welcome, {uname_upper}! MOTD: {motd_upper}'))))
-    sl = SkipLetters(('e', 'l'))
-    r = welcomeMessage("another terrible day", "ahmed biryani")
-    assert r.runReader(sl) == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY'
+    sl = ModifyMessage(('e', 'l'), {'toast': 'bread', 'freedom': 'labor'})
+    r = welcomeMessage("another terrible day.", "ahmed biryani")
+    assert r.runReader(sl) == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY.'
+
+    def fullMessage(motd: str, uname: str, jovial_msg: str) -> Reader[mT]:
+        r = welcomeMessage(motd, uname) * (lambda welcome_message:
+            censorWords(jovial_msg) * (lambda censored_message:
+                 unit(welcome_message + " " + censored_message)))
+        return r
+
+    assert (fullMessage("another terrible day.", "ahmed biryani", "Good luck today! Seek freedom! Toast your spirit!").runReader(sl)
+            == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY. Good luck today! Seek labor bread your spirit!')
 
 
 if __name__ == '__main__':
