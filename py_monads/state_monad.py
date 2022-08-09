@@ -25,6 +25,17 @@ mb now, we will be discarding the state output by fa s. if we unpack from mb its
 will have (s'', b), which is correct. in total, we have a function that accepts s and produces (s'', b), which is
 exactly the type signature we expect. s'' is obtained by passing s into fa which yields (s', a), then passing s' into
 fb. fb is obtained by passing the aforementioned a into ka_mb.
+
+There are several important utility functions regularly observed.
+
+get :: State s s
+get = State s -> (s, s)
+
+put :: s -> State s ()
+put s = State \_ -> (s, None)
+
+modify :: (s -> s) -> State s ()
+modify f = get >>= (\s -> put (f s))
 """
 from typing import Callable, Tuple, TypeVar, Generic
 
