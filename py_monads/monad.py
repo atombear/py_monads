@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Generic, TypeVar, Callable
 
-a, b = map(TypeVar, 'ab')
+a, b, r = map(TypeVar, 'abr')
 
 
 class Monad(Generic[a]):
