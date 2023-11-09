@@ -67,24 +67,22 @@ class Continuation(Monad[a]):
         return self.cont(lambda x: x)
 
 
-if __name__ == '__main__':
-    c = Continuation(unit(3)).bind(lambda x: unit(x*10)).bind(lambda x: unit(str(x))).bind(lambda x: unit(x + " children")).bind(lambda x: unit(len(x)))
+if __name__ == "__main__":
+    c = (
+        Continuation(unit(3))
+        .bind(lambda x: unit(x * 10))
+        .bind(lambda x: unit(str(x)))
+        .bind(lambda x: unit(x + " children"))
+        .bind(lambda x: unit(len(x)))
+    )
     print(c.run_cont())
 
     eye = lambda x: x
 
-    print(
-        bind(
-            bind(unit(10),
-                 lambda x: unit(x+2)),
-            lambda x: unit(10*x))
-        (eye)
-    )
+    print(bind(bind(unit(10), lambda x: unit(x + 2)), lambda x: unit(10 * x))(eye))
 
     print(
-        bind(unit(10),
-            kleisli_composition(
-                lambda x: unit(x+2),
-                lambda x: unit(10*x)))
-        (eye)
+        bind(
+            unit(10), kleisli_composition(lambda x: unit(x + 2), lambda x: unit(10 * x))
+        )(eye)
     )

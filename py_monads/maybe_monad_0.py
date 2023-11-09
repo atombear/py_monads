@@ -27,11 +27,10 @@ class Maybe:
         if self.is_nothing:
             return self.is_nothing is other.is_nothing
         else:
-            return (self.is_nothing is other.is_nothing
-                    and self.val == other.val)
+            return self.is_nothing is other.is_nothing and self.val == other.val
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     v0 = Maybe(3)
     assert v0 + 3 + 10 == Maybe(16)
 

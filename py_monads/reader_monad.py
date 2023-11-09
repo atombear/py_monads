@@ -55,7 +55,7 @@ class Cfg:
     pass
 
 
-CfgT = TypeVar('CfgT', bound=Cfg)
+CfgT = TypeVar("CfgT", bound=Cfg)
 
 
 class Reader(Monad[a]):
@@ -90,10 +90,10 @@ def example0():
     def add_second_letter(x):
         return Reader(lambda cfg: x + cfg.second_letter)
 
-    m = unit('') * add_first_letter * add_second_letter * add_first_letter
+    m = unit("") * add_first_letter * add_second_letter * add_first_letter
 
-    cfg = Letters('a', 'b')
-    assert m.runReader(cfg) == 'aba'
+    cfg = Letters("a", "b")
+    assert m.runReader(cfg) == "aba"
 
 
 def example_yao():
@@ -106,33 +106,48 @@ def example_yao():
 
     def toUpperStr(s: str) -> Reader[mT]:
         def runReader(cfg: ModifyMessage) -> str:
-            all_filter = lambda char: all(char.upper() != c.upper() for c in cfg.skip_letters)
-            return ''.join(filter(all_filter, s.upper()))
+            all_filter = lambda char: all(
+                char.upper() != c.upper() for c in cfg.skip_letters
+            )
+            return "".join(filter(all_filter, s.upper()))
+
         return Reader(runReader)
 
     def censorWords(s: str):
         def runReader(cfg: ModifyMessage) -> str:
-            return ' '.join(cfg.censor_words.get(i.lower().strip('!.,'), i) for i in s.split(' '))
+            return " ".join(
+                cfg.censor_words.get(i.lower().strip("!.,"), i) for i in s.split(" ")
+            )
+
         return Reader(runReader)
 
     def welcomeMessage(motd: str, uname: str) -> Reader[mT]:
-        return (toUpperStr(motd) * (lambda motd_upper:
-                toUpperStr(uname) * (lambda uname_upper:
-                unit(f'Welcome, {uname_upper}! MOTD: {motd_upper}'))))
-    sl = ModifyMessage(('e', 'l'), {'toast': 'bread', 'freedom': 'labor'})
+        return toUpperStr(motd) * (
+            lambda motd_upper: toUpperStr(uname)
+            * (lambda uname_upper: unit(f"Welcome, {uname_upper}! MOTD: {motd_upper}"))
+        )
+
+    sl = ModifyMessage(("e", "l"), {"toast": "bread", "freedom": "labor"})
     r = welcomeMessage("another terrible day.", "ahmed biryani")
-    assert r.runReader(sl) == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY.'
+    assert r.runReader(sl) == "Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY."
 
     def fullMessage(motd: str, uname: str, jovial_msg: str) -> Reader[mT]:
-        r = welcomeMessage(motd, uname) * (lambda welcome_message:
-            censorWords(jovial_msg) * (lambda censored_message:
-                 unit(welcome_message + " " + censored_message)))
+        r = welcomeMessage(motd, uname) * (
+            lambda welcome_message: censorWords(jovial_msg)
+            * (lambda censored_message: unit(welcome_message + " " + censored_message))
+        )
         return r
 
-    assert (fullMessage("another terrible day.", "ahmed biryani", "Good luck today! Seek freedom! Toast your spirit!").runReader(sl)
-            == 'Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY. Good luck today! Seek labor bread your spirit!')
+    assert (
+        fullMessage(
+            "another terrible day.",
+            "ahmed biryani",
+            "Good luck today! Seek freedom! Toast your spirit!",
+        ).runReader(sl)
+        == "Welcome, AHMD BIRYANI! MOTD: ANOTHR TRRIB DAY. Good luck today! Seek labor bread your spirit!"
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     example0()
     example_yao()

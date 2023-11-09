@@ -34,7 +34,7 @@ def add(val):
 end = lambda x: x
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     assert init(3)(add(7))(end) == 10
     assert init(20)(add(11))(add(35))(end) == 66
     assert run_monad(init(3)(add(7))(add(4))) == 14
@@ -50,10 +50,14 @@ if __name__ == '__main__':
     assert run_monad(m) == 15
 
     m = unit(23)
-    k = reduce(kleisli_composition,
-               (lambda x: unit(x+3),
-                lambda x: unit(x*2),
-                lambda x: unit(x-2),
-                lambda x: unit(x/2)))
+    k = reduce(
+        kleisli_composition,
+        (
+            lambda x: unit(x + 3),
+            lambda x: unit(x * 2),
+            lambda x: unit(x - 2),
+            lambda x: unit(x / 2),
+        ),
+    )
     m = bind(m, k)
     assert run_monad(m) == 25.0

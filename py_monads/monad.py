@@ -1,7 +1,7 @@
 from functools import reduce
 from typing import Generic, TypeVar, Callable
 
-a, b, r = map(TypeVar, 'abr')
+a, b, r = map(TypeVar, "abr")
 
 
 class Monad(Generic[a]):
@@ -11,8 +11,8 @@ class Monad(Generic[a]):
         return self.bind(self, other)
 
 
-Monad_a_T = TypeVar('Monad_a_T', bound=Monad[a])
-Monad_b_T = TypeVar('Monad_b_T', bound=Monad[b])
+Monad_a_T = TypeVar("Monad_a_T", bound=Monad[a])
+Monad_b_T = TypeVar("Monad_b_T", bound=Monad[b])
 
 
 class KleisliBase:
@@ -23,7 +23,7 @@ class KleisliBase:
         return self.f(val)
 
 
-KleisliT = TypeVar('KleisliT', bound=KleisliBase)
+KleisliT = TypeVar("KleisliT", bound=KleisliBase)
 
 
 def kleisli_factory(bind: Callable[[Monad_a_T, KleisliT], Monad_b_T]):

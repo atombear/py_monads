@@ -46,7 +46,7 @@ class St:
     pass
 
 
-StT = TypeVar('StT', bound=St)
+StT = TypeVar("StT", bound=St)
 
 
 class State(Monad[a]):
@@ -63,6 +63,7 @@ def bind(state: State[a], k: KleisliT) -> State[b]:
     def runState(s: StT) -> Tuple[StT, b]:
         (sp, vala) = state.runState(s)
         return k(vala).runState(sp)
+
     return State(runState)
 
 
@@ -79,14 +80,14 @@ def example0():
 
     @Kleisli
     def advance_list(v: a) -> State[a]:
-        return State(lambda s: (s + [v], v+1))
+        return State(lambda s: (s + [v], v + 1))
 
     def make_list(max_val: int) -> ListState[int]:
-        m = unit(0) * (advance_list ** max_val)
+        m = unit(0) * (advance_list**max_val)
         return m.runState(ListState())[0]
 
     assert make_list(5) == list(range(6))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     example0()

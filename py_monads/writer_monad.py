@@ -40,7 +40,7 @@ class EmptyLog(Log):
         return other
 
 
-LogT = TypeVar('LogT', bound=Log)
+LogT = TypeVar("LogT", bound=Log)
 
 
 class Writer(Monad[a]):
@@ -68,21 +68,26 @@ def log(s: a) -> Writer[None]:
 
 def example_yao():
     def addTwo(val: int) -> Writer[int]:
-        return log('adding 2\n') * (lambda _:
-               unit(val + 2))
+        return log("adding 2\n") * (lambda _: unit(val + 2))
 
     def augmentAndStringify(x: int, y: int) -> Writer[int]:
-        return log('augmenting...\n') * (lambda _:
-               addTwo(x) * (lambda xp:
-               addTwo(y) * (lambda yp:
-               lapp(5 * xp)(lambda xpp:
-               log('stringify...\n') * (lambda _:
-               unit(str(xpp + yp)))))))
+        return log("augmenting...\n") * (
+            lambda _: addTwo(x)
+            * (
+                lambda xp: addTwo(y)
+                * (
+                    lambda yp: lapp(5 * xp)(
+                        lambda xpp: log("stringify...\n")
+                        * (lambda _: unit(str(xpp + yp)))
+                    )
+                )
+            )
+        )
 
     final_log, final_value = augmentAndStringify(10, 11).runWriter
-    assert final_log == 'augmenting...\nadding 2\nadding 2\nstringify...\n'
-    assert final_value == '73'
+    assert final_log == "augmenting...\nadding 2\nadding 2\nstringify...\n"
+    assert final_value == "73"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     example_yao()
